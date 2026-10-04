@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<title>합창 악보 파트 연습기</title>
+<style>
+:root{--bg:#0b1220;--card:#121c2e;--card2:#18243a;--text:#edf4ff;--muted:#9eabc0;--line:#2a3850;--accent:#65a8ff;--accent2:#8b7cff;--good:#57d39b;--danger:#ff7185}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#08101d,#111b2d 55%,#0b1424);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}
+h1{font-size:clamp(23px,4vw,34px);margin:0}.sub{color:var(--muted);font-size:14px;margin-top:5px}
+.badge{padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:#cfe1ff;background:#111b2c;font-size:12px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.card{background:rgba(18,28,46,.9);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 14px 35px #0003}
+.card h2{font-size:17px;margin:0 0 14px}.drop{border:1.5px dashed #486180;border-radius:16px;padding:24px;text-align:center;background:#0f1929}.drop.drag{border-color:var(--accent);background:#14243b}
+input[type=file]{display:none}.filebtn,.primary,.secondary,.mode{border:0;border-radius:12px;padding:11px 14px;color:white;background:#253752}.primary{background:linear-gradient(135deg,#347eea,#6b5ce8);font-weight:700}.secondary{background:#202e44}.filebtn{display:inline-flex;align-items:center;gap:8px}.filename{margin-top:12px;color:#cbd8ec;font-size:13px;word-break:break-all}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mode{position:relative;text-align:left;border:1px solid var(--line);min-height:60px}.mode.active{border-color:var(--accent);background:#193252;box-shadow:0 0 0 1px #65a8ff33 inset}.mode b{display:block;font-size:14px}.mode span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.bgopt{display:flex;align-items:center;gap:9px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;margin:12px 0;color:#dce7f7;font-size:13px}.bgopt input{width:18px;height:18px;accent-color:var(--accent)}
+.transport{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;margin-top:14px}.play{width:54px;height:54px;border-radius:50%;border:0;background:var(--good);color:#062016;font-weight:800;font-size:18px}.stop{border:1px solid var(--line);background:#202e44;color:white;border-radius:12px;padding:10px 14px}.progress{height:8px;background:#25334a;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#65a8ff,#8b7cff)}
+.viewer{min-height:360px;display:flex;align-items:center;justify-content:center;background:#0a111d;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}.viewer img,.viewer iframe{width:100%;height:100%;min-height:360px;object-fit:contain;border:0}.empty{padding:35px;text-align:center;color:var(--muted)}.status{font-size:12px;color:#b7c6da;margin-top:10px;min-height:18px}.partrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pill{padding:7px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--muted)}.pill.on{color:white;border-color:#5d9ce9;background:#1a3454}
+details{margin-top:14px}summary{cursor:pointer;color:#c9d7ea;font-size:13px}.log{white-space:pre-wrap;background:#09101b;padding:10px;border-radius:10px;font:11px ui-monospace,monospace;color:#9db0c9;max-height:150px;overflow:auto}
+footer{text-align:center;color:#718199;font-size:12px;padding:20px}
+@media(max-width:850px){.wrap{padding:13px}.grid{grid-template-columns:1fr}.modes{grid-template-columns:1fr 1fr}.card{padding:14px}.viewer,.viewer img,.viewer iframe{min-height:290px}}
+@media(max-width:470px){.modes{grid-template-columns:1fr}.transport{grid-template-columns:auto 1fr}.stop{grid-column:1/3}.badge{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>🎼 합창 악보 파트 연습기</h1><div class="sub">Soprano · Alto · Tenor · Bass 멜로디를 피아노로 연습</div></div><div class="badge">GitHub Pages · 단일 HTML</div></header>
+
+<div class="grid">
+<section class="card">
+<h2>① 악보 파일 불러오기</h2>
+<div class="drop" id="drop">
+  <label class="filebtn primary">📁 파일 불러오기<input id="file" type="file" accept=".musicxml,.xml,.mxl,.mid,.midi,.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*"></label>
+  <div class="filename" id="filename">파일을 선택해 주세요.</div>
+  <div class="hint">스마트폰에서는 ‘파일 불러오기’를 누르면 기기의 파일 앱에서 선택할 수 있습니다.<br>
+  <b>정확한 음표 재생:</b> MusicXML / MXL / MIDI · <b>PDF/JPG:</b> 악보 보기용으로 불러옵니다.</div>
+</div>
+<div class="partrow" id="parts"><span class="pill">S 소프라노</span><span class="pill">A 알토</span><span class="pill">T 테너</span><span class="pill">B 베이스</span></div>
+<div class="status" id="status"></div>
+<details><summary>인식 정보 / 오류 확인</summary><div class="log" id="log">아직 파일이 없습니다.</div></details>
+</section>
+
+<section class="card">
+<h2>② 듣기 선택</h2>
+<div class="modes">
+<button class="mode active" data-mode="accomp"><b>1. 악보상 반주 연주</b><span>악보의 반주 트랙을 재생</span></button>
+<button class="mode" data-mode="all"><b>2. 모든 화음 피아노</b><span>S·A·T·B를 동시에 재생</span></button>
+<button class="mode" data-mode="S"><b>3. 소프라노 피아노</b><span>S 멜로디를 처음부터 끝까지</span></button>
+<button class="mode" data-mode="A"><b>4. 알토 피아노</b><span>A 멜로디를 처음부터 끝까지</span></button>
+<button class="mode" data-mode="T"><b>5. 테너 피아노</b><span>T 멜로디를 처음부터 끝까지</span></button>
+<button class="mode" data-mode="B"><b>6. 베이스 피아노</b><span>B 멜로디를 처음부터 끝까지</span></button>
+</div>
+<label class="bgopt"><input type="checkbox" id="background"> 다른파트 백그라운드 — 선택한 파트를 크게, 나머지는 작게 동시에 연주</label>
+<div class="transport">
+<button class="play" id="play">▶</button><div><div class="progress"><div class="bar" id="bar"></div></div><div class="status" id="time">00:00 / 00:00</div></div><button class="stop" id="stop">■ 정지</button>
+</div>
+</section>
+
+<section class="card" style="grid-column:1/-1">
+<h2>③ 악보 보기</h2>
+<div class="viewer" id="viewer"><div class="empty">여기에 PDF / JPG / PNG / MusicXML 악보가 표시됩니다.</div></div>
+</section>
+</div>
+<footer>합창 파트 연습용 · 파일은 기본적으로 이 브라우저 안에서 처리됩니다.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let fileData=null, score={parts:{S:[],A:[],T:[],B:[]},accomp:[],duration:0,tempo:80};
+let mode='accomp', audio=null, activeSources=[], startedAt=0, raf=null;
+
+const modeNames={S:'소프라노',A:'알토',T:'테너',B:'베이스',all:'모든 화음 피아노',accomp:'악보상 반주'};
+function log(x){$('#log').textContent=x}
+function setStatus(x){$('#status').textContent=x}
+function midiFreq(n){return 440*Math.pow(2,(n-69)/12)}
+function esc(x){return String(x).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+
+function showFile(file){
+ fileData=file; $('#filename').textContent=file.name; const ext=file.name.split('.').pop().toLowerCase();
+ if(['jpg','jpeg','png','webp'].includes(ext)){const u=URL.createObjectURL(file);$('#viewer').innerHTML='<img alt="악보 이미지">';$('#viewer img').src=u;setStatus('이미지 악보를 표시했습니다. 이미지 자체의 음표를 자동 판독하려면 OMR 엔진이 필요합니다.');log('이미지 파일: '+file.name+'\\n표시 완료.\\n현재 단일 HTML에는 범용 OMR 엔진을 내장하지 않았습니다.');return}
+ if(ext==='pdf'){const u=URL.createObjectURL(file);$('#viewer').innerHTML='<iframe title="PDF 악보" src="'+u+'"></iframe>';setStatus('PDF 악보를 표시했습니다.');log('PDF 파일: '+file.name+'\\n표시 완료.\\nPDF의 음표를 자동 판독하려면 OMR 엔진이 필요합니다.');return}
+ const reader=new FileReader();
+ if(ext==='musicxml'||ext==='xml'){reader.onload=()=>parseMusicXML(reader.result);reader.readAsText(file);return}
+ if(ext==='mxl'){setStatus('MXL 압축 악보는 브라우저 압축 해제 후 MusicXML을 읽는 기능을 준비 중입니다. MusicXML(.musicxml/.xml) 사용을 권장합니다.');log('MXL은 현재 파일 선택은 가능하지만 단일 HTML에서의 압축 패키지 해석을 생략했습니다.');return}
+ if(ext==='mid'||ext==='midi'){reader.onload=()=>parseMIDI(reader.result);reader.readAsArrayBuffer(file);return}
+ setStatus('지원하지 않는 파일입니다.')
+}
+$('#file').addEventListener('change',e=>e.target.files[0]&&showFile(e.target.files[0]));
+['dragenter','dragover'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.remove('drag')}));
+$('#drop').addEventListener('drop',e=>e.dataTransfer.files[0]&&showFile(e.dataTransfer.files[0]));
+
+function xmlText(el,tag){const n=el.getElementsByTagNameNS('*',tag)[0]||el.getElementsByTagName(tag)[0];return n?n.textContent.trim():''}
+function notePitch(n){
+ const p=n.getElementsByTagNameNS('*','pitch')[0]||n.getElementsByTagName('pitch')[0]; if(!p)return null;
+ const st=xmlText(p,'step'), oct=Number(xmlText(p,'octave')); let alter=Number(xmlText(p,'alter')||0);
+ const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[st]; return base==null?null:(oct+1)*12+base+alter
+}
+function classify(name,index){
+ const s=(name||'').toLowerCase();
+ if(/soprano|sopran|소프라노|s\b/.test(s))return'S';
+ if(/alto|알토|alt|a\b/.test(s))return'A';
+ if(/tenor|테너|ten\b|t\b/.test(s))return'T';
+ if(/bass|베이스|basso|bass\b|b\b/.test(s))return'B';
+ return ['S','A','T','B'][index]||'S';
+}
+function parseMusicXML(txt){
+ try{
+  const doc=new DOMParser().parseFromString(txt,'application/xml');
+  if(doc.querySelector('parsererror'))throw Error('MusicXML XML 구조를 읽을 수 없습니다.');
+  score={parts:{S:[],A:[],T:[],B:[]},accomp:[],duration:0,tempo:80};
+  const parts=[...doc.getElementsByTagNameNS('*','score-part')];
+  const partNames=parts.map(p=>xmlText(p,'part-name'));
+  const partEls=[...doc.getElementsByTagNameNS('*','part')];
+  partEls.forEach((part,i)=>{
+   const name=part.getAttribute('id')||partNames[i]||''; const label=partNames[i]||name; const key=classify(label,i);
+   let time=0, divisions=1, notes=[]; let lastPitch=null;
+   [...part.getElementsByTagNameNS('*','measure')].forEach(meas=>{
+    const attrs=meas.getElementsByTagNameNS('*','attributes')[0];
+    if(attrs){const d=xmlText(attrs,'divisions');if(d)divisions=Number(d)||divisions}
+    [...meas.children].forEach(el=>{
+      const tag=el.localName;
+      if(tag==='backup'||tag==='forward'){const du=Number(xmlText(el,'duration')||0)/divisions;if(tag==='backup')time-=du;else time+=du;return}
+      if(tag!=='note')return;
+      const dur=Number(xmlText(el,'duration')||0)/divisions;
+      const isRest=!!el.getElementsByTagNameNS('*','rest')[0];
+      const chord=!!el.getElementsByTagNameNS('*','chord')[0];
+      const pitch=isRest?null:notePitch(el);
+      if(!chord){notes.push({t:time,d:dur,p:pitch,vel:1});time+=dur}else if(notes.length){notes.push({t:notes[notes.length-1].t,d:dur,p:pitch,vel:1,chord:true})}
+    });
+   });
+   if(notes.length) score.parts[key].push(...notes);
+   score.duration=Math.max(score.duration,...notes.map(n=>n.t+n.d),0);
+  });
+  // 기본적으로 4성부 중 실제 데이터가 없는 경우, 트랙의 순서가 S-A-T-B가 되도록 보정
+  const nonempty=Object.entries(score.parts).filter(([k,v])=>v.length);
+  score.duration=Math.max(score.duration, ...nonempty.flatMap(x=>x[1].map(n=>n.t+n.d)),0);
+  $('#viewer').innerHTML='<div class="empty"><b>MusicXML 악보를 읽었습니다.</b><br>재생 버튼을 눌러 선택한 성부를 들어보세요.<br><span style="font-size:12px">화면에 악보 모양까지 표시하려면 MusicXML 뷰어 라이브러리를 연결할 수 있습니다.</span></div>';
+  updatePills();
+  setStatus('MusicXML 인식 완료 · '+format(score.duration)+' · '+Object.entries(score.parts).filter(x=>x[1].length).map(x=>x[0]+':'+x[1].length+'음').join(' / '));
+  log('MusicXML 파트: '+partNames.join(', ')+'\\nS: '+score.parts.S.length+' / A: '+score.parts.A.length+' / T: '+score.parts.T.length+' / B: '+score.parts.B.length+'\\n길이: '+score.duration.toFixed(2)+' 박');
+ }catch(e){setStatus('MusicXML 읽기 오류');log(String(e))}
+}
+function updatePills(){document.querySelectorAll('#parts .pill').forEach((p,i)=>{const k=['S','A','T','B'][i];p.classList.toggle('on',score.parts[k].length>0)})}
+
+function readStr(d,o,n){return new TextDecoder().decode(new Uint8Array(d,o,n))}
+function parseMIDI(buf){
+ try{
+  const d=new DataView(buf), u8=new Uint8Array(buf); let p=0;
+  if(readStr(buf,0,4)!=='MThd')throw Error('MIDI 파일이 아닙니다.');
+  const hlen=d.getUint32(4);const tracks=d.getUint16(10),division=d.getUint16(12);p=8+hlen;
+  score={parts:{S:[],A:[],T:[],B:[]},accomp:[],duration:0,tempo:80};
+  for(let ti=0;ti<tracks;ti++){
+   if(readStr(buf,p,4)!=='MTrk')break;const len=d.getUint32(p+4);let end=p+8+len;let q=p+8,time=0;let running=0,notesOn={};let ev=[];
+   function vlq(){let v=0,b;do{b=u8[q++];v=(v<<7)|(b&127)}while(b&128);return v}
+   while(q<end){time+=vlq();let st=u8[q++];if(st<128){q--;st=running}else running=st;
+    if(st===0xff){let type=u8[q++],n=vlq();if(type===0x51&&n===3)score.tempo=60000000/((u8[q]<<16)|(u8[q+1]<<8)|u8[q+2]);q+=n;continue}
+    if((st&0xf0)===0x90||(st&0xf0)===0x80){let note=u8[q++],vel=u8[q++],on=(st&0xf0)===0x90&&vel>0,key=note+'_'+(st&15);
+      if(on)notesOn[key]={t:time,p:note};else if(notesOn[key]){let a=notesOn[key];ev.push({t:a.t,d:Math.max(1,time-a.t),p:a.p});delete notesOn[key]}}
+    else if((st&0xf0)===0xc0)q++;else q+=((st&0xe0)===0xc0?0:2);
+   }
+   if(ev.length){let key=['S','A','T','B'][ti]||'S';score.parts[key].push(...ev.map(n=>({t:n.t/division,d:n.d/division,p:n.p,vel:1})));score.duration=Math.max(score.duration,...ev.map(n=>(n.t+n.d)/division))}
+   p=end;
+  }
+  $('#viewer').innerHTML='<div class="empty"><b>MIDI 파일을 읽었습니다.</b><br>트랙 순서에 따라 S/A/T/B로 배정하여 재생합니다.</div>';updatePills();
+  setStatus('MIDI 인식 완료 · '+format(score.duration)+' · 트랙을 S/A/T/B 순서로 배정');
+  log('MIDI tracks: '+tracks+'\\nS/A/T/B에 트랙 순서로 배정했습니다.\\n재생 템포: '+Math.round(score.tempo)+' BPM');
+ }catch(e){setStatus('MIDI 읽기 오류');log(String(e))}
+}
+function format(sec){sec=Math.max(0,sec);return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(Math.floor(sec%60)).padStart(2,'0')}
+
+function piano(ctx, freq, start, dur, gain){
+ const g=ctx.createGain();g.gain.setValueAtTime(0.0001,start);g.gain.exponentialRampToValueAtTime(Math.max(.001,gain),start+.012);g.gain.exponentialRampToValueAtTime(Math.max(.0001,gain*.34),start+Math.min(.25,dur*.45));g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+ const o1=ctx.createOscillator(),o2=ctx.createOscillator(),o3=ctx.createOscillator();o1.type='triangle';o2.type='sine';o3.type='sine';o1.frequency.value=freq;o2.frequency.value=freq*2;o3.frequency.value=freq*3;
+ const g2=ctx.createGain();g2.gain.value=.22;const g3=ctx.createGain();g3.gain.value=.07;
+ o1.connect(g);o2.connect(g2);g2.connect(g);o3.connect(g3);g3.connect(g);g.connect(ctx.destination);o1.start(start);o2.start(start);o3.start(start);o1.stop(start+dur+.05);o2.stop(start+dur+.05);o3.stop(start+dur+.05);activeSources.push(o1,o2,o3)
+}
+function eventsFor(k){return score.parts[k]||[]}
+function selectedTracks(){
+ if(mode==='all')return[['S',.24],['A',.24],['T',.24],['B',.24]];
+ if(mode==='accomp')return score.accomp.length?[['accomp',.28]]:[['S',.18],['A',.18],['T',.18],['B',.18]];
+ const out=[[mode,.55]];
+ if($('#background').checked)for(const k of ['S','A','T','B'])if(k!==mode&&eventsFor(k).length)out.push([k,.055]);
+ return out;
+}
+function stop(){
+ if(audio){try{audio.close()}catch{}audio=null}activeSources=[];startedAt=0;cancelAnimationFrame(raf);$('#bar').style.width='0%';$('#time').textContent='00:00 / '+format(score.duration)
+}
+function play(){
+ stop(); if(!score.duration){setStatus('먼저 MusicXML 또는 MIDI 파일을 불러와 주세요.');return}
+ audio=new (window.AudioContext||window.webkitAudioContext)(); const now=audio.currentTime+.08; const tracks=selectedTracks(); const tempo=score.tempo||80; const beatSec=60/tempo;
+ tracks.forEach(([k,gain])=>eventsFor(k).forEach(n=>{if(n.p==null)return;const st=now+n.t*beatSec,du=Math.max(.035,n.d*beatSec*.92);piano(audio,midiFreq(n.p),st,du,gain)}));
+ startedAt=performance.now(); const total=score.duration*beatSec*1000;
+ function tick(){const elapsed=performance.now()-startedAt;const pct=Math.min(100,elapsed/total*100);$('#bar').style.width=pct+'%';$('#time').textContent=format(elapsed/1000)+' / '+format(total/1000);if(elapsed<total)raf=requestAnimationFrame(tick);else stop()}raf=requestAnimationFrame(tick);
+ setStatus(modeNames[mode]+' 재생 중');
+}
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.mode}));
+$('#play').onclick=play;$('#stop').onclick=stop;
+$('#time').textContent='00:00 / 00:00';
+</script>
+</body>
+</html>
